@@ -173,9 +173,9 @@ final class Message extends Message\AbstractMessage implements MessageInterface
     {
         if (null === $this->headers) {
             // imap_headerinfo is much faster than imap_fetchheader
-            // imap_headerinfo returns only a subset of all mail headers,
-            // but it does include the message flags.
-            $headers = \imap_headerinfo($this->resource->getStream(), $this->getMsgNo());
+            // ...but at the cost of precision.
+            // Specifically Message-ID gets misparsed. Avoid.
+            $headers = \imap_rfc822_parse_headers($this->getRawHeaders());
             if (false === $headers) {
                 // @see https://github.com/ddeboer/imap/issues/358
                 throw new InvalidHeadersException(\sprintf('Message "%s" has invalid headers', $this->getNumber()));
